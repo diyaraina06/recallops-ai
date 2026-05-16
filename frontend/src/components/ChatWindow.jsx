@@ -70,11 +70,6 @@ function ChatWindow({
       timestamp: new Date().toLocaleTimeString(),
     };
 
-    setMessages((prev) => [
-      ...prev,
-      userMessage,
-    ]);
-
     try {
 
       const res = await axios.post(
@@ -102,9 +97,15 @@ function ChatWindow({
           new Date().toLocaleTimeString(),
       };
 
+      // NEWEST INCIDENT + AI RESPONSE AT TOP
+
       setMessages((prev) => [
-        ...prev,
+
+        userMessage,
+
         aiMessage,
+
+        ...prev,
       ]);
 
       setRuntimeData({
@@ -377,7 +378,7 @@ function ChatWindow({
 
       <div className="
         mt-8
-        space-y-5
+        space-y-4
         overflow-y-auto
         h-[68vh]
         pr-2
@@ -389,7 +390,7 @@ function ChatWindow({
             key={index}
             className={`
               rounded-3xl
-              p-6
+              p-5
               border
               shadow-xl
 
@@ -404,7 +405,7 @@ function ChatWindow({
               flex
               items-center
               justify-between
-              mb-5
+              mb-4
             ">
 
               <div className="
@@ -425,7 +426,7 @@ function ChatWindow({
                 `}></div>
 
                 <h2 className="
-                  text-2xl
+                  text-xl
                   font-bold
                   text-white
                 ">
@@ -454,8 +455,8 @@ function ChatWindow({
             <p className="
               text-gray-300
               whitespace-pre-wrap
-              leading-8
-              text-base
+              leading-7
+              text-[15px]
             ">
 
               {msg.content}
@@ -474,7 +475,7 @@ function ChatWindow({
             <div className="
               glass-card
               rounded-3xl
-              p-6
+              p-5
               border
               border-white/10
               animate-pulse
@@ -507,7 +508,7 @@ function ChatWindow({
                 <div>
 
                   <h2 className="
-                    text-2xl
+                    text-xl
                     font-bold
                     text-white
                   ">
