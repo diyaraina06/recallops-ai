@@ -16,58 +16,104 @@ import requests
 
 load_dotenv()
 
+# =========================
+# GROQ CLIENT
+# =========================
+
 client = Groq(
     api_key=os.getenv("GROQ_API_KEY")
 )
 
+# =========================
+# EMBEDDING MODEL
+# =========================
+
 model = SentenceTransformer(
-    'all-MiniLM-L6-v2'
+    "all-MiniLM-L6-v2"
 )
+
+# =========================
+# FASTAPI APP
+# =========================
 
 app = FastAPI()
 
 app.add_middleware(
+
     CORSMiddleware,
+
     allow_origins=["*"],
+
     allow_credentials=True,
+
     allow_methods=["*"],
+
     allow_headers=["*"],
 )
 
+# =========================
 # HINDSIGHT SERVER
+# =========================
 
 HINDSIGHT_URL = "http://localhost:8888"
 
+# =========================
+# REQUEST MODEL
+# =========================
+
 class ChatRequest(BaseModel):
+
     message: str
+
     embeddings_enabled: bool = True
 
+# =========================
 # LOAD MEMORY
+# =========================
 
 def load_memory():
 
     try:
 
-        with open("memory.json", "r") as file:
+        with open(
+            "memory.json",
+            "r"
+        ) as file:
+
             return json.load(file)
 
     except:
+
         return []
 
+# =========================
 # SAVE MEMORY
+# =========================
 
 def save_memory(memory):
 
-    with open("memory.json", "w") as file:
-        json.dump(memory, file, indent=2)
+    with open(
+        "memory.json",
+        "w"
+    ) as file:
 
+        json.dump(
+            memory,
+            file,
+            indent=2
+        )
+
+# =========================
 # SAFE HINDSIGHT STORE
+# =========================
 
 def store_in_hindsight(content):
 
     try:
 
-        print("Sending memory to Hindsight...")
+        print(
+            "Sending memory to Hindsight..."
+        )
 
         requests.post(
 
@@ -84,7 +130,9 @@ def store_in_hindsight(content):
             timeout=1
         )
 
-        print("Memory stored in Hindsight successfully")
+        print(
+            "Memory stored in Hindsight successfully"
+        )
 
     except Exception as e:
 
@@ -93,13 +141,17 @@ def store_in_hindsight(content):
             e
         )
 
+# =========================
 # SAFE HINDSIGHT RECALL
+# =========================
 
 def recall_from_hindsight(query):
 
     try:
 
-        print("Recalling from Hindsight...")
+        print(
+            "Recalling from Hindsight..."
+        )
 
         response = requests.post(
 
@@ -116,7 +168,9 @@ def recall_from_hindsight(query):
             timeout=1
         )
 
-        print("Hindsight recall completed")
+        print(
+            "Hindsight recall completed"
+        )
 
         return response.json()
 
@@ -129,7 +183,9 @@ def recall_from_hindsight(query):
 
         return None
 
+# =========================
 # SEMANTIC SIMILARITY
+# =========================
 
 def find_similar_incident(
     current_message,
@@ -139,76 +195,117 @@ def find_similar_incident(
     if len(memory) == 0:
         return None
 
-    current_embedding = model.encode(
-        [current_message]
-    )
+    try:
 
-    best_match = None
-    highest_score = 0
-
-    for item in memory:
-
-        stored_embedding = model.encode(
-            [item["incident"]]
+        current_embedding = model.encode(
+            [current_message]
         )
 
-        similarity = cosine_similarity(
-            current_embedding,
-            stored_embedding
-        )[0][0]
+        best_match = None
 
-        similarity_percentage = int(
-            similarity * 100
+        highest_score = 0
+
+        # LIMIT MEMORY SEARCH
+        recent_memory = memory[-5:]
+
+        for item in recent_memory:
+
+            stored_embedding = model.encode(
+                [item["incident"]]
+            )
+
+            similarity = cosine_similarity(
+
+                current_embedding,
+
+                stored_embedding
+
+            )[0][0]
+
+            similarity_percentage = int(
+                similarity * 100
+            )
+
+            if similarity_percentage > highest_score:
+
+                highest_score = similarity_percentage
+
+                best_match = {
+
+                    "incident":
+                    item["incident"],
+
+                    "resolution":
+                    item["resolution"],
+
+                    "score":
+                    similarity_percentage
+                }
+
+        if highest_score > 55:
+
+            return best_match
+
+        return None
+
+    except Exception as e:
+
+        print(
+            "Semantic retrieval failed:",
+            e
         )
 
-        if similarity_percentage > highest_score:
+        return None
 
-            highest_score = similarity_percentage
-
-            best_match = {
-
-                "incident":
-                item["incident"],
-
-                "resolution":
-                item["resolution"],
-
-                "score":
-                similarity_percentage
-            }
-
-    if highest_score > 55:
-        return best_match
-
-    return None
-
+# =========================
 # HOME
+# =========================
 
 @app.get("/")
 def home():
 
     return {
+
         "message": "Backend running"
     }
 
+# =========================
 # CHAT
+# =========================
 
 @app.post("/chat")
 def chat(req: ChatRequest):
 
+    print("STEP 1")
+
     memory = load_memory()
 
-    # OPTIONAL HINDSIGHT RECALL
+    print("STEP 2")
 
-    hindsight_memories = (
-        recall_from_hindsight(
-            req.message
+    hindsight_memories = None
+
+    # SAFE HINDSIGHT RECALL
+
+    try:
+
+        hindsight_memories = (
+            recall_from_hindsight(
+                req.message
+            )
         )
-    )
+
+        print("STEP 3")
+
+    except Exception as e:
+
+        print(
+            "Hindsight unavailable:",
+            e
+        )
 
     similar_incident = None
 
-    # EXISTING SEMANTIC SEARCH
+    # SAFE SEMANTIC SEARCH
 
     if req.embeddings_enabled:
 
@@ -218,6 +315,8 @@ def chat(req: ChatRequest):
                 memory
             )
         )
+
+        print("STEP 4")
 
     previous_context = ""
 
@@ -232,48 +331,71 @@ def chat(req: ChatRequest):
         {similar_incident['resolution']}
         """
 
+    # =========================
     # AI RESPONSE
+    # =========================
 
-    completion = client.chat.completions.create(
+    try:
 
-        model="llama-3.3-70b-versatile",
+        print("STEP 5")
 
-        messages=[
+        completion = client.chat.completions.create(
 
-            {
+            model="llama-3.3-70b-versatile",
 
-                "role": "system",
+            messages=[
 
-                "content": f"""
+                {
 
-                You are an AI incident
-                response engineer.
+                    "role": "system",
 
-                Use previous operational
-                incidents if relevant.
+                    "content": f"""
 
-                Hindsight operational memory
-                is enabled.
+                    You are an AI incident
+                    response engineer.
 
-                {previous_context}
-                """
-            },
+                    Use previous operational
+                    incidents if relevant.
 
-            {
-                "role": "user",
-                "content": req.message
-            }
-        ]
-    )
+                    Hindsight operational memory
+                    is enabled.
 
-    reply = (
-        completion
-        .choices[0]
-        .message
-        .content
-    )
+                    {previous_context}
+                    """
+                },
 
+                {
+
+                    "role": "user",
+
+                    "content": req.message
+                }
+            ]
+        )
+
+        reply = (
+            completion
+            .choices[0]
+            .message
+            .content
+        )
+
+        print("STEP 6")
+
+    except Exception as e:
+
+        print(
+            "Groq AI failed:",
+            e
+        )
+
+        reply = (
+            "AI response generation failed."
+        )
+
+    # =========================
     # SAVE LOCAL MEMORY
+    # =========================
 
     new_memory = {
 
@@ -291,18 +413,33 @@ def chat(req: ChatRequest):
 
     save_memory(memory)
 
-    # OPTIONAL HINDSIGHT STORE
+    # =========================
+    # SAFE HINDSIGHT STORE
+    # =========================
 
-    store_in_hindsight(
+    try:
 
-        f"""
+        store_in_hindsight(
 
-        Incident:
-        {req.message}
+            f"""
 
-        Resolution:
-        {reply}
-        """
+            Incident:
+            {req.message}
+
+            Resolution:
+            {reply}
+            """
+        )
+
+    except Exception as e:
+
+        print(
+            "Hindsight store failed:",
+            e
+        )
+
+    print(
+        "Response sent successfully"
     )
 
     return {

@@ -69,7 +69,7 @@ function ChatWindow({
     try {
 
       const res = await axios.post(
-        "https://recallops-ai.onrender.com",
+        "http://127.0.0.1:8000/chat",
         {
           message,
           embeddings_enabled:
