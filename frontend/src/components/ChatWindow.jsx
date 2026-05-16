@@ -97,7 +97,7 @@ function ChatWindow({
           new Date().toLocaleTimeString(),
       };
 
-      // NEWEST INCIDENT + AI RESPONSE AT TOP
+      // NEWEST CHAT AT TOP
 
       setMessages((prev) => [
 
@@ -252,27 +252,61 @@ function ChatWindow({
           "
         />
 
+        {/* SEND BUTTON */}
+
         <button
           onClick={sendMessage}
-          className="
-            bg-blue-600
-            hover:bg-blue-500
-            transition
+          disabled={loading}
+          className={`
             px-7
             rounded-2xl
             shadow-lg
-            shadow-blue-500/30
             flex
             items-center
-            gap-2
+            gap-3
             text-base
             text-white
-          "
+            transition-all
+            duration-300
+
+            ${loading
+              ? "bg-blue-400/60 cursor-not-allowed shadow-blue-400/10"
+              : "bg-blue-600 hover:bg-blue-500 shadow-blue-500/30"
+            }
+          `}
         >
 
-          <Send size={18} />
+          {
+            loading ? (
 
-          Send
+              <>
+
+                <div className="
+                  w-4
+                  h-4
+                  border-2
+                  border-white/30
+                  border-t-white
+                  rounded-full
+                  animate-spin
+                "></div>
+
+                Analyzing...
+
+              </>
+
+            ) : (
+
+              <>
+
+                <Send size={18} />
+
+                Send
+
+              </>
+
+            )
+          }
 
         </button>
 
@@ -564,6 +598,7 @@ function ChatWindow({
       </div>
 
     </div>
+
   );
 }
 

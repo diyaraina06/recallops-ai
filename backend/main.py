@@ -34,11 +34,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# HINDSIGHT SERVER
+
 HINDSIGHT_URL = "http://localhost:8888"
 
 class ChatRequest(BaseModel):
     message: str
     embeddings_enabled: bool = True
+
+# LOAD MEMORY
 
 def load_memory():
 
@@ -50,45 +54,87 @@ def load_memory():
     except:
         return []
 
+# SAVE MEMORY
+
 def save_memory(memory):
 
     with open("memory.json", "w") as file:
         json.dump(memory, file, indent=2)
 
+# SAFE HINDSIGHT STORE
+
 def store_in_hindsight(content):
 
     try:
 
+        print("Sending memory to Hindsight...")
+
         requests.post(
+
             f"{HINDSIGHT_URL}/retain",
+
             json={
-                "memory_bank_id": "recallops-memory",
+
+                "memory_bank_id":
+                "recallops-memory",
+
                 "content": content
-            }
+            },
+
+            timeout=1
         )
 
+        print("Memory stored in Hindsight successfully")
+
     except Exception as e:
-        print("Hindsight store error:", e)
+
+        print(
+            "Hindsight store skipped:",
+            e
+        )
+
+# SAFE HINDSIGHT RECALL
 
 def recall_from_hindsight(query):
 
     try:
 
+        print("Recalling from Hindsight...")
+
         response = requests.post(
+
             f"{HINDSIGHT_URL}/recall",
+
             json={
-                "memory_bank_id": "recallops-memory",
+
+                "memory_bank_id":
+                "recallops-memory",
+
                 "query": query
-            }
+            },
+
+            timeout=1
         )
+
+        print("Hindsight recall completed")
 
         return response.json()
 
     except Exception as e:
-        print("Hindsight recall error:", e)
+
+        print(
+            "Hindsight recall skipped:",
+            e
+        )
+
         return None
 
-def find_similar_incident(current_message, memory):
+# SEMANTIC SIMILARITY
+
+def find_similar_incident(
+    current_message,
+    memory
+):
 
     if len(memory) == 0:
         return None
@@ -120,9 +166,15 @@ def find_similar_incident(current_message, memory):
             highest_score = similarity_percentage
 
             best_match = {
-                "incident": item["incident"],
-                "resolution": item["resolution"],
-                "score": similarity_percentage
+
+                "incident":
+                item["incident"],
+
+                "resolution":
+                item["resolution"],
+
+                "score":
+                similarity_percentage
             }
 
     if highest_score > 55:
@@ -130,30 +182,41 @@ def find_similar_incident(current_message, memory):
 
     return None
 
+# HOME
+
 @app.get("/")
 def home():
-    return {"message": "Backend running"}
+
+    return {
+        "message": "Backend running"
+    }
+
+# CHAT
 
 @app.post("/chat")
 def chat(req: ChatRequest):
 
     memory = load_memory()
 
+    # OPTIONAL HINDSIGHT RECALL
+
+    hindsight_memories = (
+        recall_from_hindsight(
+            req.message
+        )
+    )
+
     similar_incident = None
 
-    hindsight_memories = None
+    # EXISTING SEMANTIC SEARCH
 
     if req.embeddings_enabled:
 
-        similar_incident = find_similar_incident(
-            req.message,
-            memory
-        )
-
-        # HINDSIGHT RECALL
-
-        hindsight_memories = recall_from_hindsight(
-            req.message
+        similar_incident = (
+            find_similar_incident(
+                req.message,
+                memory
+            )
         )
 
     previous_context = ""
@@ -169,6 +232,8 @@ def chat(req: ChatRequest):
         {similar_incident['resolution']}
         """
 
+    # AI RESPONSE
+
     completion = client.chat.completions.create(
 
         model="llama-3.3-70b-versatile",
@@ -176,15 +241,19 @@ def chat(req: ChatRequest):
         messages=[
 
             {
+
                 "role": "system",
 
                 "content": f"""
 
-                You are an AI incident response engineer.
+                You are an AI incident
+                response engineer.
 
-                Use previous operational incidents if relevant.
+                Use previous operational
+                incidents if relevant.
 
-                Hindsight memory retrieval is enabled.
+                Hindsight operational memory
+                is enabled.
 
                 {previous_context}
                 """
@@ -197,23 +266,37 @@ def chat(req: ChatRequest):
         ]
     )
 
-    reply = completion.choices[0].message.content
+    reply = (
+        completion
+        .choices[0]
+        .message
+        .content
+    )
+
+    # SAVE LOCAL MEMORY
 
     new_memory = {
 
-        "incident": req.message,
-        "resolution": reply,
-        "timestamp": str(datetime.now())
+        "incident":
+        req.message,
+
+        "resolution":
+        reply,
+
+        "timestamp":
+        str(datetime.now())
     }
 
     memory.append(new_memory)
 
     save_memory(memory)
 
-    # STORE IN HINDSIGHT
+    # OPTIONAL HINDSIGHT STORE
 
     store_in_hindsight(
+
         f"""
+
         Incident:
         {req.message}
 
@@ -226,9 +309,11 @@ def chat(req: ChatRequest):
 
         "reply": reply,
 
-        "similar_incident": similar_incident,
+        "similar_incident":
+        similar_incident,
 
         "severity": "Medium",
 
-        "hindsight_enabled": True
+        "hindsight_enabled":
+        True
     }
