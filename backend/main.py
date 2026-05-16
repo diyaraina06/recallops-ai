@@ -1,6 +1,3 @@
-from sentence_transformers import SentenceTransformer
-from sklearn.metrics.pairwise import cosine_similarity
-
 import json
 from datetime import datetime
 
@@ -22,14 +19,6 @@ load_dotenv()
 
 client = Groq(
     api_key=os.getenv("GROQ_API_KEY")
-)
-
-# =========================
-# EMBEDDING MODEL
-# =========================
-
-model = SentenceTransformer(
-    "all-MiniLM-L6-v2"
 )
 
 # =========================
@@ -111,10 +100,6 @@ def store_in_hindsight(content):
 
     try:
 
-        print(
-            "Sending memory to Hindsight..."
-        )
-
         requests.post(
 
             f"{HINDSIGHT_URL}/retain",
@@ -128,10 +113,6 @@ def store_in_hindsight(content):
             },
 
             timeout=1
-        )
-
-        print(
-            "Memory stored in Hindsight successfully"
         )
 
     except Exception as e:
@@ -149,10 +130,6 @@ def recall_from_hindsight(query):
 
     try:
 
-        print(
-            "Recalling from Hindsight..."
-        )
-
         response = requests.post(
 
             f"{HINDSIGHT_URL}/recall",
@@ -168,10 +145,6 @@ def recall_from_hindsight(query):
             timeout=1
         )
 
-        print(
-            "Hindsight recall completed"
-        )
-
         return response.json()
 
     except Exception as e:
@@ -184,7 +157,7 @@ def recall_from_hindsight(query):
         return None
 
 # =========================
-# SEMANTIC SIMILARITY
+# LIGHTWEIGHT SEMANTIC MATCH
 # =========================
 
 def find_similar_incident(
@@ -195,67 +168,62 @@ def find_similar_incident(
     if len(memory) == 0:
         return None
 
-    try:
+    current_words = set(
+        current_message.lower().split()
+    )
 
-        current_embedding = model.encode(
-            [current_message]
+    best_match = None
+
+    highest_score = 0
+
+    recent_memory = memory[-5:]
+
+    for item in recent_memory:
+
+        stored_words = set(
+            item["incident"]
+            .lower()
+            .split()
         )
 
-        best_match = None
-
-        highest_score = 0
-
-        # LIMIT MEMORY SEARCH
-        recent_memory = memory[-5:]
-
-        for item in recent_memory:
-
-            stored_embedding = model.encode(
-                [item["incident"]]
-            )
-
-            similarity = cosine_similarity(
-
-                current_embedding,
-
-                stored_embedding
-
-            )[0][0]
-
-            similarity_percentage = int(
-                similarity * 100
-            )
-
-            if similarity_percentage > highest_score:
-
-                highest_score = similarity_percentage
-
-                best_match = {
-
-                    "incident":
-                    item["incident"],
-
-                    "resolution":
-                    item["resolution"],
-
-                    "score":
-                    similarity_percentage
-                }
-
-        if highest_score > 55:
-
-            return best_match
-
-        return None
-
-    except Exception as e:
-
-        print(
-            "Semantic retrieval failed:",
-            e
+        common_words = (
+            current_words
+            .intersection(stored_words)
         )
 
-        return None
+        similarity = int(
+
+            (
+                len(common_words)
+                /
+                max(
+                    len(current_words),
+                    1
+                )
+            ) * 100
+        )
+
+        if similarity > highest_score:
+
+            highest_score = similarity
+
+            best_match = {
+
+                "incident":
+                item["incident"],
+
+                "resolution":
+                item["resolution"],
+
+                "score":
+                similarity
+            }
+
+    if highest_score > 30:
+
+        return best_match
+
+    return None
 
 # =========================
 # HOME
@@ -276,11 +244,11 @@ def home():
 @app.post("/chat")
 def chat(req: ChatRequest):
 
-    print("STEP 1")
+    print(
+        "New incident received"
+    )
 
     memory = load_memory()
-
-    print("STEP 2")
 
     hindsight_memories = None
 
@@ -293,8 +261,6 @@ def chat(req: ChatRequest):
                 req.message
             )
         )
-
-        print("STEP 3")
 
     except Exception as e:
 
@@ -316,8 +282,6 @@ def chat(req: ChatRequest):
             )
         )
 
-        print("STEP 4")
-
     previous_context = ""
 
     if similar_incident:
@@ -336,8 +300,6 @@ def chat(req: ChatRequest):
     # =========================
 
     try:
-
-        print("STEP 5")
 
         completion = client.chat.completions.create(
 
@@ -379,8 +341,6 @@ def chat(req: ChatRequest):
             .message
             .content
         )
-
-        print("STEP 6")
 
     except Exception as e:
 
@@ -437,10 +397,6 @@ def chat(req: ChatRequest):
             "Hindsight store failed:",
             e
         )
-
-    print(
-        "Response sent successfully"
-    )
 
     return {
 
