@@ -5,7 +5,7 @@ import {
   Send,
   BookOpen,
   Sparkles,
-  Brain,
+  ShieldCheck,
 } from "lucide-react";
 
 function ChatWindow({
@@ -38,10 +38,6 @@ function ChatWindow({
     "Redis cache causing high latency spikes",
 
     "PostgreSQL database latency increased suddenly",
-
-    "Users facing gateway timeout failures in production",
-
-    "CI pipeline failing after infrastructure update",
   ];
 
   const generateIncident = () => {
@@ -97,8 +93,6 @@ function ChatWindow({
           new Date().toLocaleTimeString(),
       };
 
-      // NEWEST CHAT AT TOP
-
       setMessages((prev) => [
 
         userMessage,
@@ -153,72 +147,190 @@ function ChatWindow({
 
   return (
 
-    <div className="flex-1 p-6 overflow-hidden">
+    <div className="flex-1 p-4 md:p-6 overflow-hidden">
 
       {/* HEADER */}
 
-      <div className="flex items-start justify-between">
+      <div className="
+        relative
+        overflow-hidden
+        rounded-[28px]
+        border
+        border-white/10
+        bg-gradient-to-br
+        from-[#071225]
+        to-[#020817]
+        p-5 md:p-6
+        mb-6
+      ">
 
-        <div>
+        {/* GLOW */}
 
-          <h1 className="text-5xl font-bold text-white leading-tight">
-            Incident Response
-            <br />
-            Center
-          </h1>
+        <div className="
+          absolute
+          top-[-70px]
+          right-[-70px]
+          w-[180px]
+          h-[180px]
+          bg-blue-500/20
+          blur-3xl
+          rounded-full
+        "></div>
 
-          <p className="text-gray-400 mt-3 text-lg">
-            AI-Powered Incident Analysis & Resolution
-          </p>
+        <div className="
+          relative
+          z-10
+          flex
+          flex-col
+          md:flex-row
+          md:items-start
+          md:justify-between
+          gap-5
+        ">
 
-        </div>
+          {/* LEFT */}
 
-        <div className="flex gap-3">
+          <div>
 
-          {/* DOCS BUTTON */}
+            {/* STATUS */}
 
-          <button
-            onClick={() =>
-              setActiveView("docs")
-            }
-            className="
-              glass-card
-              px-4
-              py-3
-              rounded-2xl
-              hover:bg-white/10
-              transition
-              flex
+            <div className="
+              inline-flex
               items-center
-              gap-2
-              text-white
-              text-sm
-            "
-          >
-
-            <BookOpen size={16} />
-
-            Documentation
-
-          </button>
-
-          {/* RANDOM INCIDENT */}
-
-          <button
-            onClick={generateIncident}
-            className="
-              glass-card
-              p-3
+              gap-3
+              px-4
+              py-2
               rounded-2xl
-              hover:bg-white/10
-              transition
-              text-white
-            "
-          >
+              bg-green-500/10
+              border
+              border-green-500/20
+              text-green-400
+              text-sm
+              font-medium
+              mb-4
+            ">
 
-            <Sparkles size={16} />
+              <div className="
+                w-2.5
+                h-2.5
+                rounded-full
+                bg-green-400
+                animate-pulse
+              "></div>
 
-          </button>
+              AI Infrastructure Operational
+
+            </div>
+
+            {/* TITLE */}
+
+            <h1 className="
+              text-3xl
+              md:text-5xl
+              font-black
+              leading-[1.05]
+              tracking-tight
+            ">
+
+              <span className="
+                bg-gradient-to-r
+                from-white
+                via-blue-100
+                to-blue-400
+                bg-clip-text
+                text-transparent
+              ">
+
+                Incident Response
+
+              </span>
+
+              <br />
+
+              <span className="text-white">
+
+                Center
+
+              </span>
+
+            </h1>
+
+            {/* SUBTEXT */}
+
+            <p className="
+              text-gray-400
+              mt-4
+              text-sm
+              md:text-base
+              max-w-2xl
+              leading-7
+            ">
+
+              AI-powered operational intelligence platform
+              for semantic incident analysis,
+              runtime observability,
+              and production infrastructure resolution.
+
+            </p>
+
+          </div>
+
+          {/* ACTIONS */}
+
+          <div className="
+            flex
+            items-center
+            gap-3
+          ">
+
+            <button
+              onClick={() =>
+                setActiveView("docs")
+              }
+              className="
+                glass-card
+                px-5
+                py-3
+                rounded-2xl
+                hover:bg-white/10
+                transition-all
+                duration-300
+                flex
+                items-center
+                gap-3
+                text-white
+                text-sm
+                border
+                border-white/10
+              "
+            >
+
+              <BookOpen size={17} />
+
+              Documentation
+
+            </button>
+
+            <button
+              onClick={generateIncident}
+              className="
+                bg-blue-600
+                hover:bg-blue-500
+                transition-all
+                duration-300
+                p-3.5
+                rounded-2xl
+                shadow-lg
+                shadow-blue-500/20
+                text-white
+              "
+            >
+
+              <Sparkles size={18} />
+
+            </button>
+
+          </div>
 
         </div>
 
@@ -226,11 +338,16 @@ function ChatWindow({
 
       {/* INPUT */}
 
-      <div className="flex gap-4 mt-8">
+      <div className="
+        flex
+        flex-col md:flex-row
+        gap-4
+        mt-6
+      ">
 
         <input
           type="text"
-          placeholder="Describe the incident in detail..."
+          placeholder="Describe the incident..."
           value={message}
           onChange={(e) =>
             setMessage(e.target.value)
@@ -252,13 +369,14 @@ function ChatWindow({
           "
         />
 
-        {/* SEND BUTTON */}
-
         <button
           onClick={sendMessage}
           disabled={loading}
           className={`
+            w-full md:w-auto
             px-7
+            py-4 md:py-0
+            justify-center
             rounded-2xl
             shadow-lg
             flex
@@ -312,46 +430,6 @@ function ChatWindow({
 
       </div>
 
-      {/* EMBEDDINGS STATUS */}
-
-      <div className="mt-4">
-
-        <div className={`
-          inline-flex
-          items-center
-          gap-2
-          px-4
-          py-2
-          rounded-xl
-          text-sm
-
-          ${embeddingsEnabled
-            ? "bg-green-500/20 text-green-400"
-            : "bg-red-500/20 text-red-400"
-          }
-        `}>
-
-          <div className={`
-            w-2
-            h-2
-            rounded-full
-
-            ${embeddingsEnabled
-              ? "bg-green-400"
-              : "bg-red-400"
-            }
-          `}></div>
-
-          {
-            embeddingsEnabled
-              ? "Semantic Retrieval Enabled"
-              : "Semantic Retrieval Disabled"
-          }
-
-        </div>
-
-      </div>
-
       {/* SIMILAR INCIDENT */}
 
       {
@@ -389,24 +467,45 @@ function ChatWindow({
 
             </p>
 
-            <p className="
-              text-yellow-300
-              text-xs
-              mt-3
-            ">
-
-              Confidence Match:
-              {" "}
-              {
-                similarIncident.score
-              }%
-
-            </p>
-
           </div>
 
         )
       }
+
+      {/* SEMANTIC STATUS */}
+
+      <div className="mt-5">
+
+        <div className={`
+          inline-flex
+          items-center
+          gap-3
+          px-4
+          py-3
+          rounded-2xl
+          border
+
+          ${embeddingsEnabled
+            ? "bg-green-500/10 border-green-500/20 text-green-400"
+            : "bg-red-500/10 border-red-500/20 text-red-400"
+          }
+        `}>
+
+          <ShieldCheck size={18} />
+
+          <p className="font-medium">
+
+            {
+              embeddingsEnabled
+                ? "Semantic Retrieval Enabled"
+                : "Semantic Retrieval Disabled"
+            }
+
+          </p>
+
+        </div>
+
+      </div>
 
       {/* MESSAGE FEED */}
 
@@ -414,7 +513,7 @@ function ChatWindow({
         mt-8
         space-y-4
         overflow-y-auto
-        h-[68vh]
+        max-h-[65vh] md:max-h-[68vh]
         pr-2
       ">
 
@@ -424,7 +523,7 @@ function ChatWindow({
             key={index}
             className={`
               rounded-3xl
-              p-5
+              p-4 md:p-5
               border
               shadow-xl
 
@@ -442,42 +541,23 @@ function ChatWindow({
               mb-4
             ">
 
-              <div className="
-                flex
-                items-center
-                gap-3
+              <h2 className="
+                text-lg md:text-xl
+                font-bold
+                text-white
               ">
 
-                <div className={`
-                  w-3
-                  h-3
-                  rounded-full
+                {
+                  msg.type === "user"
+                    ? "Incident Report"
+                    : "AI Resolution"
+                }
 
-                  ${msg.type === "user"
-                    ? "bg-blue-400"
-                    : "bg-purple-400"
-                  }
-                `}></div>
-
-                <h2 className="
-                  text-xl
-                  font-bold
-                  text-white
-                ">
-
-                  {
-                    msg.type === "user"
-                      ? "Incident Report"
-                      : "AI Resolution"
-                  }
-
-                </h2>
-
-              </div>
+              </h2>
 
               <p className="
+                text-xs
                 text-gray-400
-                text-sm
               ">
 
                 {msg.timestamp}
@@ -490,7 +570,7 @@ function ChatWindow({
               text-gray-300
               whitespace-pre-wrap
               leading-7
-              text-[15px]
+              text-sm md:text-[15px]
             ">
 
               {msg.content}
@@ -501,104 +581,9 @@ function ChatWindow({
 
         ))}
 
-        {/* LOADING */}
-
-        {
-          loading && (
-
-            <div className="
-              glass-card
-              rounded-3xl
-              p-5
-              border
-              border-white/10
-              animate-pulse
-            ">
-
-              <div className="
-                flex
-                items-center
-                gap-4
-                mb-4
-              ">
-
-                <div className="
-                  w-10
-                  h-10
-                  rounded-xl
-                  bg-purple-500/20
-                  flex
-                  items-center
-                  justify-center
-                ">
-
-                  <Brain
-                    className="text-purple-400"
-                    size={18}
-                  />
-
-                </div>
-
-                <div>
-
-                  <h2 className="
-                    text-xl
-                    font-bold
-                    text-white
-                  ">
-
-                    AI Resolution
-
-                  </h2>
-
-                  <p className="
-                    text-purple-300
-                    text-sm
-                    mt-1
-                  ">
-
-                    Analyzing incident...
-
-                  </p>
-
-                </div>
-
-              </div>
-
-              <div className="space-y-3">
-
-                <div className="
-                  h-4
-                  bg-white/10
-                  rounded-full
-                  w-full
-                "></div>
-
-                <div className="
-                  h-4
-                  bg-white/10
-                  rounded-full
-                  w-5/6
-                "></div>
-
-                <div className="
-                  h-4
-                  bg-white/10
-                  rounded-full
-                  w-4/6
-                "></div>
-
-              </div>
-
-            </div>
-
-          )
-        }
-
       </div>
 
     </div>
-
   );
 }
 

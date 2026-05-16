@@ -69,49 +69,113 @@ function Sidebar({
     <>
 
       <div className="
-        w-[300px]
+        w-[320px]
         h-screen
         border-r
         border-white/10
-        bg-[#030712]
+        bg-[#020817]
         p-6
         flex
         flex-col
+        relative
+        overflow-hidden
       ">
+
+        {/* SIDEBAR GLOW */}
+
+        <div className="
+          absolute
+          top-[-120px]
+          left-[-120px]
+          w-[260px]
+          h-[260px]
+          bg-blue-500/10
+          blur-3xl
+          rounded-full
+        "></div>
 
         {/* LOGO */}
 
-        <div className="flex items-center gap-4 mb-10">
+        <div className="
+          relative
+          z-10
+          flex
+          items-center
+          gap-4
+          mb-12
+        ">
 
           <div className="
-            w-12
-            h-12
+            relative
+            w-14
+            h-14
             rounded-2xl
             bg-gradient-to-br
             from-blue-500
+            via-indigo-500
             to-purple-600
             flex
             items-center
             justify-center
-            shadow-lg
+            shadow-[0_0_35px_rgba(59,130,246,0.45)]
           ">
 
+            <div className="
+              absolute
+              inset-0
+              rounded-2xl
+              bg-white/10
+            "></div>
+
             <Brain
-              className="text-white"
-              size={22}
+              className="text-white relative z-10"
+              size={24}
             />
 
           </div>
 
-          <h1 className="text-5xl font-bold text-white">
-            RecallOps
-          </h1>
+          <div>
+
+            <h1 className="
+              text-5xl
+              font-black
+              tracking-tight
+              bg-gradient-to-r
+              from-white
+              via-blue-100
+              to-blue-400
+              bg-clip-text
+              text-transparent
+              drop-shadow-[0_0_20px_rgba(59,130,246,0.35)]
+            ">
+
+              RecallOps
+
+            </h1>
+
+            <p className="
+              text-xs
+              text-blue-300/70
+              mt-1
+              tracking-[0.2em]
+              uppercase
+            ">
+
+              AI INCIDENT OPS
+
+            </p>
+
+          </div>
 
         </div>
 
         {/* MENU */}
 
-        <div className="space-y-3">
+        <div className="
+          relative
+          z-10
+          space-y-3
+        ">
 
           {
             menuItems.map((item) => {
@@ -135,18 +199,37 @@ function Sidebar({
                     rounded-2xl
                     transition-all
                     duration-300
+                    border
 
                     ${activeView === item.id
-                      ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30"
-                      : "text-gray-300 hover:bg-white/5"
+                      ? `
+                        bg-gradient-to-r
+                        from-blue-600
+                        to-indigo-600
+                        text-white
+                        border-blue-400/20
+                        shadow-lg
+                        shadow-blue-500/20
+                      `
+                      : `
+                        border-transparent
+                        text-gray-300
+                        hover:bg-white/5
+                        hover:border-white/10
+                      `
                     }
                   `}
                 >
 
                   <Icon size={22} />
 
-                  <span className="text-lg font-medium">
+                  <span className="
+                    text-lg
+                    font-medium
+                  ">
+
                     {item.label}
+
                   </span>
 
                 </button>
@@ -160,29 +243,50 @@ function Sidebar({
         {/* STATUS */}
 
         <div className="
+          relative
+          z-10
           mt-10
           glass-card
           rounded-3xl
           p-5
+          border
+          border-green-500/10
         ">
 
-          <div className="flex items-center gap-3">
+          <div className="
+            flex
+            items-center
+            gap-3
+          ">
 
             <div className="
               w-3
               h-3
               rounded-full
               bg-green-400
+              animate-pulse
             "></div>
 
-            <h3 className="text-green-400 font-bold text-xl">
+            <h3 className="
+              text-green-400
+              font-bold
+              text-xl
+            ">
+
               System Online
+
             </h3>
 
           </div>
 
-          <p className="text-gray-400 mt-3 text-sm">
+          <p className="
+            text-gray-400
+            mt-3
+            text-sm
+          ">
+
             All systems operational
+
           </p>
 
         </div>
@@ -192,6 +296,8 @@ function Sidebar({
         <div
           onClick={() => setShowProfile(true)}
           className="
+            relative
+            z-10
             mt-auto
             glass-card
             rounded-3xl
@@ -201,18 +307,33 @@ function Sidebar({
             justify-between
             cursor-pointer
             hover:bg-white/10
-            transition
+            transition-all
+            duration-300
+            border
+            border-white/10
           "
         >
 
           <div>
 
-            <h3 className="text-white font-bold text-lg">
+            <h3 className="
+              text-white
+              font-bold
+              text-lg
+            ">
+
               RecallOps Team
+
             </h3>
 
-            <p className="text-gray-400 text-sm mt-1">
+            <p className="
+              text-gray-400
+              text-sm
+              mt-1
+            ">
+
               admin@recallops.ai
+
             </p>
 
           </div>
@@ -221,13 +342,17 @@ function Sidebar({
             w-14
             h-14
             rounded-full
-            bg-blue-600
+            bg-gradient-to-br
+            from-blue-500
+            to-indigo-600
             flex
             items-center
             justify-center
             text-white
             font-bold
             text-xl
+            shadow-lg
+            shadow-blue-500/20
           ">
 
             R
@@ -316,6 +441,15 @@ function Sidebar({
                   RecallOps Admin
 
                 </h2>
+
+                <p className="
+                  text-gray-400
+                  mt-3
+                ">
+
+                  AI-powered incident response platform
+
+                </p>
 
               </div>
 

@@ -1,10 +1,4 @@
-import {
-  ShieldAlert,
-  Clock3,
-  AlertTriangle,
-} from "lucide-react";
-
-function IncidentsPage({ messages, runtimeData }) {
+function IncidentsPage({ messages }) {
 
   const incidents = messages.filter(
     (msg) => msg.type === "user"
@@ -12,128 +6,87 @@ function IncidentsPage({ messages, runtimeData }) {
 
   return (
 
-    <div className="flex-1 p-6 overflow-y-auto">
+    <div className="p-6 overflow-y-auto max-h-screen">
 
-      {/* HEADER */}
+      <h1 className="
+        text-3xl md:text-5xl
+        font-bold
+        text-white
+      ">
 
-      <div className="flex items-center gap-4 mb-8">
+        Incident History
 
-        <div className="w-12 h-12 rounded-2xl bg-red-500/20 flex items-center justify-center">
+      </h1>
 
-          <ShieldAlert
-            className="text-red-400"
-            size={22}
-          />
+      <p className="
+        text-gray-400
+        mt-3
+      ">
 
-        </div>
+        Previous operational incidents
+      </p>
 
-        <div>
+      <div className="
+        grid
+        grid-cols-1 md:grid-cols-2
+        gap-5
+        mt-10
+      ">
 
-          <h1 className="text-4xl font-bold text-white">
-            Incidents
-          </h1>
+        {incidents.map((incident, index) => (
 
-          <p className="text-gray-400 mt-1">
-            Operational incident history & tracking
-          </p>
+          <div
+            key={index}
+            className="
+              glass-card
+              rounded-3xl
+              p-4 md:p-5
+              border
+              border-white/10
+            "
+          >
 
-        </div>
+            <div className="
+              flex
+              items-center
+              justify-between
+              mb-4
+            ">
 
-      </div>
+              <h2 className="
+                text-lg md:text-xl
+                font-bold
+                text-white
+              ">
 
-      {/* INCIDENT LIST */}
+                Incident Report
 
-      <div className="space-y-5">
+              </h2>
 
-        {
-          incidents.length > 0 ? (
+              <p className="
+                text-xs
+                text-gray-400
+              ">
 
-            incidents.map((incident, index) => (
+                {incident.timestamp}
 
-              <div
-                key={index}
-                className="glass-card rounded-3xl p-6 border border-white/10"
-              >
-
-                {/* TOP */}
-
-                <div className="flex items-center justify-between">
-
-                  <div className="flex items-center gap-4">
-
-                    <div className="w-11 h-11 rounded-2xl bg-red-500/20 flex items-center justify-center">
-
-                      <AlertTriangle
-                        className="text-red-400"
-                        size={20}
-                      />
-
-                    </div>
-
-                    <div>
-
-                      <h2 className="text-xl font-bold text-white">
-                        Incident #{index + 1}
-                      </h2>
-
-                      <div className="flex items-center gap-2 mt-1 text-gray-400 text-sm">
-
-                        <Clock3 size={14} />
-
-                        {incident.timestamp}
-
-                      </div>
-
-                    </div>
-
-                  </div>
-
-                  {/* STATUS */}
-
-                  <div className="flex items-center gap-3">
-
-                    <div className="px-4 py-2 rounded-xl bg-red-500/20 text-red-400 text-sm font-medium">
-
-                      {runtimeData.severity}
-
-                    </div>
-
-                    <div className="px-4 py-2 rounded-xl bg-green-500/20 text-green-400 text-sm font-medium">
-
-                      Resolved
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-                {/* INCIDENT CONTENT */}
-
-                <div className="mt-6">
-
-                  <p className="text-gray-300 leading-8">
-
-                    {incident.content}
-
-                  </p>
-
-                </div>
-
-              </div>
-
-            ))
-
-          ) : (
-
-            <div className="glass-card rounded-3xl h-[60vh] flex items-center justify-center text-gray-500 text-lg">
-
-              No incidents recorded yet
+              </p>
 
             </div>
 
-          )
-        }
+            <p className="
+              text-gray-300
+              leading-7
+              text-sm
+            ">
+
+              {incident.content}
+
+            </p>
+
+          </div>
+
+        ))}
 
       </div>
 

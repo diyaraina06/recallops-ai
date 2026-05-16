@@ -1,77 +1,144 @@
 import {
   Wallet,
-  DollarSign,
-  Cpu,
-  Database,
   Activity,
+  Database,
+  Cpu,
 } from "lucide-react";
 
-function BudgetPage({ runtimeData, messages }) {
+function BudgetPage({
+  runtimeData,
+  messages,
+}) {
 
-  const totalIncidents =
+  const incidentCount =
     messages.filter(
       (msg) => msg.type === "user"
     ).length;
 
-  const estimatedSpend =
-    (totalIncidents * 0.012).toFixed(3);
+  const totalSpend =
+    (incidentCount * 0.012).toFixed(3);
+
+  const avgCost =
+    incidentCount > 0
+      ? (
+        totalSpend / incidentCount
+      ).toFixed(3)
+      : "0.000";
+
+  const tokenUsage =
+    incidentCount * 3200;
+
+  const retrievalOps =
+    runtimeData.memoryHits || 0;
 
   return (
 
-    <div className="flex-1 p-6 overflow-y-auto">
+    <div className="
+      flex-1
+      p-6
+      overflow-y-auto
+    ">
 
       {/* HEADER */}
 
-      <div className="flex items-center gap-4 mb-8">
+      <div className="
+        flex
+        items-center
+        gap-4
+        mb-12
+      ">
 
-        <div className="w-12 h-12 rounded-2xl bg-green-500/20 flex items-center justify-center">
+        <div className="
+          w-14
+          h-14
+          rounded-2xl
+          bg-green-500/10
+          flex
+          items-center
+          justify-center
+        ">
 
           <Wallet
             className="text-green-400"
-            size={22}
+            size={26}
           />
 
         </div>
 
         <div>
 
-          <h1 className="text-4xl font-bold text-white">
+          <h1 className="
+            text-5xl
+            font-bold
+            text-white
+          ">
+
             AI Budget Monitoring
+
           </h1>
 
-          <p className="text-gray-400 mt-1">
+          <p className="
+            text-gray-400
+            mt-2
+          ">
+
             Operational AI spend & infrastructure utilization
+
           </p>
 
         </div>
 
       </div>
 
-      {/* GRID */}
+      {/* STATS */}
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="
+        grid
+        grid-cols-1 md:grid-cols-2
+        gap-6
+      ">
 
         {/* CARD */}
 
-        <div className="glass-card rounded-3xl p-6">
+        <div className="
+          glass-card
+          rounded-3xl
+          p-6
+        ">
 
-          <div className="flex items-center justify-between">
+          <div className="
+            flex
+            items-center
+            justify-between
+          ">
 
             <div>
 
-              <p className="text-gray-400 text-sm">
+              <p className="
+                text-gray-400
+                text-sm
+              ">
+
                 Total AI Spend
+
               </p>
 
-              <h2 className="text-4xl font-bold text-green-400 mt-3">
-                ${estimatedSpend}
-              </h2>
+              <h1 className="
+                text-5xl
+                font-bold
+                text-green-400
+                mt-4
+              ">
+
+                ${totalSpend}
+
+              </h1>
 
             </div>
 
-            <DollarSign
+            <Wallet
               className="text-green-400"
-              size={24}
+              size={28}
             />
 
           </div>
@@ -80,25 +147,45 @@ function BudgetPage({ runtimeData, messages }) {
 
         {/* CARD */}
 
-        <div className="glass-card rounded-3xl p-6">
+        <div className="
+          glass-card
+          rounded-3xl
+          p-6
+        ">
 
-          <div className="flex items-center justify-between">
+          <div className="
+            flex
+            items-center
+            justify-between
+          ">
 
             <div>
 
-              <p className="text-gray-400 text-sm">
+              <p className="
+                text-gray-400
+                text-sm
+              ">
+
                 Avg Cost / Incident
+
               </p>
 
-              <h2 className="text-4xl font-bold text-purple-400 mt-3">
-                $0.012
-              </h2>
+              <h1 className="
+                text-5xl
+                font-bold
+                text-purple-400
+                mt-4
+              ">
+
+                ${avgCost}
+
+              </h1>
 
             </div>
 
             <Cpu
               className="text-purple-400"
-              size={24}
+              size={28}
             />
 
           </div>
@@ -107,25 +194,45 @@ function BudgetPage({ runtimeData, messages }) {
 
         {/* CARD */}
 
-        <div className="glass-card rounded-3xl p-6">
+        <div className="
+          glass-card
+          rounded-3xl
+          p-6
+        ">
 
-          <div className="flex items-center justify-between">
+          <div className="
+            flex
+            items-center
+            justify-between
+          ">
 
             <div>
 
-              <p className="text-gray-400 text-sm">
+              <p className="
+                text-gray-400
+                text-sm
+              ">
+
                 Token Usage
+
               </p>
 
-              <h2 className="text-4xl font-bold text-blue-400 mt-3">
-                {totalIncidents * 3200}
-              </h2>
+              <h1 className="
+                text-5xl
+                font-bold
+                text-blue-400
+                mt-4
+              ">
+
+                {tokenUsage}
+
+              </h1>
 
             </div>
 
             <Activity
               className="text-blue-400"
-              size={24}
+              size={28}
             />
 
           </div>
@@ -134,25 +241,45 @@ function BudgetPage({ runtimeData, messages }) {
 
         {/* CARD */}
 
-        <div className="glass-card rounded-3xl p-6">
+        <div className="
+          glass-card
+          rounded-3xl
+          p-6
+        ">
 
-          <div className="flex items-center justify-between">
+          <div className="
+            flex
+            items-center
+            justify-between
+          ">
 
             <div>
 
-              <p className="text-gray-400 text-sm">
+              <p className="
+                text-gray-400
+                text-sm
+              ">
+
                 Vector Retrieval Ops
+
               </p>
 
-              <h2 className="text-4xl font-bold text-yellow-400 mt-3">
-                {runtimeData.memoryHits}
-              </h2>
+              <h1 className="
+                text-5xl
+                font-bold
+                text-yellow-400
+                mt-4
+              ">
+
+                {retrievalOps}
+
+              </h1>
 
             </div>
 
             <Database
               className="text-yellow-400"
-              size={24}
+              size={28}
             />
 
           </div>
@@ -161,23 +288,39 @@ function BudgetPage({ runtimeData, messages }) {
 
       </div>
 
-      {/* COST BREAKDOWN */}
+      {/* BREAKDOWN */}
 
-      <div className="glass-card rounded-3xl p-6 mt-8">
+      <div className="
+        glass-card
+        rounded-3xl
+        p-8
+        mt-10
+      ">
 
-        <h2 className="text-2xl font-bold text-white mb-8">
+        <h2 className="
+          text-3xl
+          font-bold
+          text-white
+          mb-8
+        ">
+
           Infrastructure Cost Breakdown
+
         </h2>
 
-        <div className="space-y-7">
+        <div className="space-y-8">
 
-          {/* AI INFERENCE */}
+          {/* AI */}
 
           <div>
 
-            <div className="flex items-center justify-between mb-2">
+            <div className="
+              flex
+              justify-between
+              mb-3
+            ">
 
-              <p className="text-gray-300">
+              <p className="text-white">
                 AI Inference
               </p>
 
@@ -187,21 +330,35 @@ function BudgetPage({ runtimeData, messages }) {
 
             </div>
 
-            <div className="h-3 bg-white/5 rounded-full overflow-hidden">
+            <div className="
+              w-full
+              h-4
+              bg-white/5
+              rounded-full
+            ">
 
-              <div className="w-[68%] h-full bg-blue-500 rounded-full"></div>
+              <div className="
+                h-4
+                rounded-full
+                bg-blue-500
+                w-[68%]
+              "></div>
 
             </div>
 
           </div>
 
-          {/* VECTOR DB */}
+          {/* VECTOR */}
 
           <div>
 
-            <div className="flex items-center justify-between mb-2">
+            <div className="
+              flex
+              justify-between
+              mb-3
+            ">
 
-              <p className="text-gray-300">
+              <p className="text-white">
                 Vector Memory Retrieval
               </p>
 
@@ -211,9 +368,19 @@ function BudgetPage({ runtimeData, messages }) {
 
             </div>
 
-            <div className="h-3 bg-white/5 rounded-full overflow-hidden">
+            <div className="
+              w-full
+              h-4
+              bg-white/5
+              rounded-full
+            ">
 
-              <div className="w-[21%] h-full bg-purple-500 rounded-full"></div>
+              <div className="
+                h-4
+                rounded-full
+                bg-purple-500
+                w-[21%]
+              "></div>
 
             </div>
 
@@ -223,9 +390,13 @@ function BudgetPage({ runtimeData, messages }) {
 
           <div>
 
-            <div className="flex items-center justify-between mb-2">
+            <div className="
+              flex
+              justify-between
+              mb-3
+            ">
 
-              <p className="text-gray-300">
+              <p className="text-white">
                 Runtime Logging
               </p>
 
@@ -235,9 +406,19 @@ function BudgetPage({ runtimeData, messages }) {
 
             </div>
 
-            <div className="h-3 bg-white/5 rounded-full overflow-hidden">
+            <div className="
+              w-full
+              h-4
+              bg-white/5
+              rounded-full
+            ">
 
-              <div className="w-[11%] h-full bg-green-500 rounded-full"></div>
+              <div className="
+                h-4
+                rounded-full
+                bg-green-500
+                w-[11%]
+              "></div>
 
             </div>
 
