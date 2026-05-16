@@ -1,47 +1,137 @@
 import { useState } from "react";
-import axios from "axios";
+
+import Sidebar from "./components/Sidebar";
+import ChatWindow from "./components/ChatWindow";
+import AnalyticsPanel from "./components/AnalyticsPanel";
+import RuntimeLogs from "./components/RuntimeLogs";
+import AnalyticsPage from "./components/AnalyticsPage";
+import IncidentsPage from "./components/IncidentsPage";
+import MemoryPage from "./components/MemoryPage";
+import BudgetPage from "./components/BudgetPage";
+import SettingsPage from "./components/SettingsPage";
+import DocumentationPage from "./components/DocumentationPage";
 
 function App() {
-  const [message, setMessage] = useState("");
-  const [response, setResponse] = useState("");
 
-  const sendMessage = async () => {
-    const res = await axios.post("http://127.0.0.1:8000/chat", {
-      message,
-    });
+  const [activeView, setActiveView] = useState("dashboard");
 
-    setResponse(res.data.reply);
-  };
+  const [messages, setMessages] = useState([]);
+
+  const [embeddingsEnabled, setEmbeddingsEnabled] =
+    useState(true);
+
+  const [runtimeData, setRuntimeData] = useState({
+
+    latency: "0ms",
+
+    cost: "$0.000",
+
+    severity: "Low",
+
+    memoryHits: 0,
+
+    status: "Operational",
+
+    logs: [],
+  });
 
   return (
-    <div style={{ padding: "40px" }}>
-      <h1>RecallOps</h1>
 
-      <input
-        type="text"
-        placeholder="Enter incident..."
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        style={{
-          padding: "10px",
-          width: "400px",
-        }}
+    <div className="flex h-screen bg-[#020817] overflow-hidden">
+
+      <Sidebar
+        activeView={activeView}
+        setActiveView={setActiveView}
       />
 
-      <button
-        onClick={sendMessage}
-        style={{
-          marginLeft: "10px",
-          padding: "10px",
-        }}
-      >
-        Send
-      </button>
+      <div className="flex flex-1 overflow-hidden">
 
-      <div style={{ marginTop: "30px" }}>
-        <strong>AI Response:</strong>
-        <p>{response}</p>
+        {
+          activeView === "dashboard" && (
+
+            <>
+              <ChatWindow
+                runtimeData={runtimeData}
+                setRuntimeData={setRuntimeData}
+                messages={messages}
+                setMessages={setMessages}
+                setActiveView={setActiveView}
+                embeddingsEnabled={embeddingsEnabled}
+              />
+
+              <AnalyticsPanel
+                runtimeData={runtimeData}
+                messages={messages}
+              />
+            </>
+
+          )
+        }
+
+        {
+          activeView === "docs" && (
+            <DocumentationPage />
+          )
+        }
+
+        {
+          activeView === "incidents" && (
+
+            <IncidentsPage
+              messages={messages}
+              runtimeData={runtimeData}
+            />
+
+          )
+        }
+
+        {
+          activeView === "memory" && (
+            <MemoryPage messages={messages} />
+          )
+        }
+
+        {
+          activeView === "logs" && (
+            <RuntimeLogs runtimeData={runtimeData} />
+          )
+        }
+
+        {
+          activeView === "analytics" && (
+
+            <AnalyticsPage
+              runtimeData={runtimeData}
+              messages={messages}
+            />
+
+          )
+        }
+
+        {
+          activeView === "budget" && (
+
+            <BudgetPage
+              runtimeData={runtimeData}
+              messages={messages}
+            />
+
+          )
+        }
+
+        {
+          activeView === "settings" && (
+
+            <SettingsPage
+              embeddingsEnabled={embeddingsEnabled}
+              setEmbeddingsEnabled={setEmbeddingsEnabled}
+            />
+
+          )
+        }
+
       </div>
+
     </div>
   );
 }

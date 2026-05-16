@@ -12,7 +12,6 @@ from groq import Groq
 from dotenv import load_dotenv
 
 import os
-import requests
 
 load_dotenv()
 
@@ -34,8 +33,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-HINDSIGHT_URL = "http://localhost:8888"
-
 class ChatRequest(BaseModel):
     message: str
     embeddings_enabled: bool = True
@@ -54,39 +51,6 @@ def save_memory(memory):
 
     with open("memory.json", "w") as file:
         json.dump(memory, file, indent=2)
-
-def store_in_hindsight(content):
-
-    try:
-
-        requests.post(
-            f"{HINDSIGHT_URL}/retain",
-            json={
-                "memory_bank_id": "recallops-memory",
-                "content": content
-            }
-        )
-
-    except Exception as e:
-        print("Hindsight store error:", e)
-
-def recall_from_hindsight(query):
-
-    try:
-
-        response = requests.post(
-            f"{HINDSIGHT_URL}/recall",
-            json={
-                "memory_bank_id": "recallops-memory",
-                "query": query
-            }
-        )
-
-        return response.json()
-
-    except Exception as e:
-        print("Hindsight recall error:", e)
-        return None
 
 def find_similar_incident(current_message, memory):
 
@@ -141,19 +105,11 @@ def chat(req: ChatRequest):
 
     similar_incident = None
 
-    hindsight_memories = None
-
     if req.embeddings_enabled:
 
         similar_incident = find_similar_incident(
             req.message,
             memory
-        )
-
-        # HINDSIGHT RECALL
-
-        hindsight_memories = recall_from_hindsight(
-            req.message
         )
 
     previous_context = ""
@@ -184,8 +140,6 @@ def chat(req: ChatRequest):
 
                 Use previous operational incidents if relevant.
 
-                Hindsight memory retrieval is enabled.
-
                 {previous_context}
                 """
             },
@@ -210,25 +164,11 @@ def chat(req: ChatRequest):
 
     save_memory(memory)
 
-    # STORE IN HINDSIGHT
-
-    store_in_hindsight(
-        f"""
-        Incident:
-        {req.message}
-
-        Resolution:
-        {reply}
-        """
-    )
-
     return {
 
         "reply": reply,
 
         "similar_incident": similar_incident,
 
-        "severity": "Medium",
-
-        "hindsight_enabled": True
+        "severity": "Medium"
     }
