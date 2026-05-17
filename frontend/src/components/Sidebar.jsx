@@ -70,7 +70,7 @@ function Sidebar({
 
       <div className="
         w-[320px]
-        h-screen
+        min-h-screen
         border-r
         border-white/10
         bg-[#020817]
@@ -78,7 +78,8 @@ function Sidebar({
         flex
         flex-col
         relative
-        overflow-hidden
+        overflow-y-auto
+        overflow-x-hidden
       ">
 
         {/* SIDEBAR GLOW */}
@@ -299,6 +300,7 @@ function Sidebar({
             relative
             z-10
             mt-auto
+            mb-4
             glass-card
             rounded-3xl
             p-5
@@ -311,6 +313,7 @@ function Sidebar({
             duration-300
             border
             border-white/10
+            shrink-0
           "
         >
 
